@@ -1,0 +1,3 @@
+﻿ASSUMPTIONS:
+- That all coupons and discounts are amounts NOT percentages
+- Promotions and coupons are only applied to the base price of a product, never the base price + tax

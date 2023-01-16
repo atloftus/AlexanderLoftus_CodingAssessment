@@ -9,7 +9,10 @@ using System.Linq;
 
 namespace AlexanderLoftus_CodingAssessment.Function_Handlers
 {
-    public class CalculateOrderTotalsFunctionHandler
+    public interface IFunctionHandler { 
+        
+    }
+    public class CalculateOrderTotalsFunctionHandler 
     {
         #region PROPERTIES
         public MockDataBaseService MockDataBaseService { get; set; }
@@ -62,16 +65,9 @@ namespace AlexanderLoftus_CodingAssessment.Function_Handlers
         {
             foreach (OrderProduct orderproduct in thisordersproducts)
             {
+                Double discount = CalculateDiscount(orderproduct, activepromotion);
                 Double finalPrice = orderproduct.Product.Price * orderproduct.Quantity;
-                Double tax = orderproduct.Product.IsLuxuryGood ? (orderproduct.Product.Price * orderstate.TaxRate) * 2 : orderproduct.Product.Price * orderstate.TaxRate;
-                Double discount = 0.00;
-
-                if (orderproduct.Coupon != null) discount += orderproduct.Coupon.Amount;
-
-                if (activepromotion != null) discount += activepromotion.Amount;
-
-                discount *= orderproduct.Quantity;
-                tax *= orderproduct.Quantity;
+                Double tax = (orderproduct.Product.IsLuxuryGood ? (orderproduct.Product.Price * orderstate.TaxRate) * 2 : orderproduct.Product.Price * orderstate.TaxRate) * orderproduct.Quantity;
 
                 Console.WriteLine("----------" + orderproduct.Product.Name + " (" + orderproduct.Quantity + " @ $" + orderproduct.Product.Price + ")----------");
                 Console.WriteLine("finalPrice + tax - discount = TOTAL");
@@ -87,28 +83,33 @@ namespace AlexanderLoftus_CodingAssessment.Function_Handlers
         public void CalculateTotalsForPostTax(Order order, List<OrderProduct> thisordersproducts, State orderstate, Promotion? activepromotion)
         {
             foreach (OrderProduct orderproduct in thisordersproducts)
-            {
-                Double finalPrice = orderproduct.Product.Price * orderproduct.Quantity;
-                Double discount = 0.00;
-
-                if (orderproduct.Coupon != null) discount += orderproduct.Coupon.Amount;
-
-                if (activepromotion != null) discount += activepromotion.Amount;
-
+            {               
+                Double discount = CalculateDiscount(orderproduct, activepromotion);
+                Double finalPrice = orderproduct.Product.Price * orderproduct.Quantity - discount;
                 Double tax = orderproduct.Product.IsLuxuryGood ? (finalPrice * orderstate.TaxRate) * 2 : finalPrice * orderstate.TaxRate;
 
-                discount *= orderproduct.Quantity;
-
                 Console.WriteLine("----------" + orderproduct.Product.Name + " (" + orderproduct.Quantity + " @ $" + orderproduct.Product.Price + ")----------");
-                Console.WriteLine("finalPrice + tax - discount = TOTAL");
-                Console.WriteLine(finalPrice + " + " + tax + " - " + discount + " = " + (finalPrice + tax - discount));
+                Console.WriteLine("(finalPrice - discount) + tax = TOTAL");
+                Console.WriteLine("(" + finalPrice + " - " + discount + ") + " + tax  + " = " + (finalPrice + tax - discount));
                 Console.WriteLine("-----------------------------------");
 
                 order.Tax += tax;
-                order.Total += finalPrice + tax - discount;
+                order.Total += finalPrice + tax;
             }
         }
 
+
+        public Double CalculateDiscount(OrderProduct orderproduct, Promotion? activepromotion) {
+            Double discount = 0.00;
+
+            if (orderproduct.Coupon != null) discount += orderproduct.Coupon.Amount;
+
+            if (activepromotion != null) discount += activepromotion.Amount;
+
+            discount *= orderproduct.Quantity;
+
+            return discount;
+        }
 
         public string CreateOutputFile() 
         {
