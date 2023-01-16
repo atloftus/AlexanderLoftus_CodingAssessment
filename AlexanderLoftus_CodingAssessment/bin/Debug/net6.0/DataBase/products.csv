@@ -1,0 +1,10 @@
+Id,Name,Price,IsLuxuryGood
+1,"Apple",20.00,false
+2,"Plum",10.00,false
+3,"Orange",30.00,false
+4,"Pear",50.00,false
+5,"Kiwi",60.00,false
+6,"Diamond",20000.00,true
+7,"Gold",30000.00,true
+8,"Ruby",4500.00,true
+9,"Saphire",2000.00,true

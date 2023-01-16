@@ -1,0 +1,6 @@
+Id,Name,TwoLetterSymbol,CalculateTaxBefore,TaxRate
+1,"Florida","FL",true,0.10
+2,"New Mexico","NM",true,0.20
+3,"Nevada","NV",true,0.30
+4,"Georgia","GA",false,0.40
+5,"New York","NY",false,0.50
