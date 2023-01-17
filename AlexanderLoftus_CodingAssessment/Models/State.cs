@@ -16,9 +16,19 @@ namespace AlexanderLoftus_CodingAssessment.Models
     }
 
 
-
-    public class State : TableBase
+    public interface IState
     {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string TwoLetterSymbol { get; set; }
+        public bool CalculateTaxBefore { get; set; }
+        public Double TaxRate { get; set; }
+    }
+
+
+    public class State : IState
+    {
+        public int Id { get; set; }
         public string Name { get; set; }
         public string TwoLetterSymbol { get; set; }
         public bool CalculateTaxBefore { get; set; }

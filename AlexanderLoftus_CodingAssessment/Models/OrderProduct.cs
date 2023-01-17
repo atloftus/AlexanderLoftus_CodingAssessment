@@ -16,15 +16,28 @@ namespace AlexanderLoftus_CodingAssessment.Models
     }
 
 
-
-    public class OrderProduct : TableBase
+    public class IOrderProduct
     {
+        public int Id { get; set; }
         public int OrderId { get; set; }
         public int ProductId { get; set; }
         public int? CouponId { get; set; }
-        public Order Order { get; set; }
+        public IOrder Order { get; set; }
         public int Quantity { get; set; }
-        public Product Product { get; set; }
-        public Coupon? Coupon { get; set; }
+        public IProduct Product { get; set; }
+        public ICoupon? Coupon { get; set; }
+    }
+
+
+    public class OrderProduct : IOrderProduct
+    {
+        public int Id { get; set; }
+        public int OrderId { get; set; }
+        public int ProductId { get; set; }
+        public int? CouponId { get; set; }
+        public IOrder Order { get; set; }
+        public int Quantity { get; set; }
+        public IProduct Product { get; set; }
+        public ICoupon? Coupon { get; set; }
     }
 }

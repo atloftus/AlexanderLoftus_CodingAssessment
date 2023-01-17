@@ -16,9 +16,20 @@ namespace AlexanderLoftus_CodingAssessment.Models
         }
     }
 
-
-    public class Promotion : TableBase
+    public interface IPromotion
     {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public Double Amount { get; set; }
+    }
+
+
+
+    public class Promotion : IPromotion
+    {
+        public int Id { get; set; }
         public string Name { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

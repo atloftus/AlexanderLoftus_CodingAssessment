@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace AlexanderLoftus_CodingAssessment.Utilities
 {
-    public static class CSVUtility { 
+    public static class CSVInputUtility { 
         #region METHOD
-        public static async Task<MemoryStream> GetCSVMemoryStreamFromOrders(List<Order> orders)
+        public static async Task<MemoryStream> GetCSVMemoryStreamFromOrders(List<IOrderTotal> orders)
         {
             MemoryStream contentstream = new MemoryStream(50000);
             StreamWriter sw = new StreamWriter(contentstream);
 
-            foreach (Order order in orders) {
+            foreach (IOrderTotal order in orders) {
                 if (sw.BaseStream.Position == 0) await sw.WriteLineAsync(order.ConvertPropertiesToCSVHeaderString());
                 await sw.WriteLineAsync(order.ConvertToCSVString());
                 sw.Flush();

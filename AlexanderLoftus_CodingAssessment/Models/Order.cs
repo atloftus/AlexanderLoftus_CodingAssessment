@@ -1,6 +1,6 @@
 ﻿using CsvHelper.Configuration;
 using System;
-
+using System.Reflection;
 
 namespace AlexanderLoftus_CodingAssessment.Models
 {
@@ -14,14 +14,23 @@ namespace AlexanderLoftus_CodingAssessment.Models
     }
 
 
-
-    public class Order : TableBase
+    public interface IOrder
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public DateTime Date { get; set; }
-        public int? StateId { get; set; } = null;  
-        public Double PreTaxCost { get; set; }
-        public Double Tax { get; set; }
-        public Double Total { get; set; }
+        public int? StateId { get; set; }
+
+    }
+
+
+    public class Order : IOrder
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime Date { get; set; }
+        public int? StateId { get; set; }  
+
+
     }
 }

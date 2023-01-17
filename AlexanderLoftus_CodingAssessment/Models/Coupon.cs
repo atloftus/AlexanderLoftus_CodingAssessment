@@ -13,12 +13,20 @@ namespace AlexanderLoftus_CodingAssessment.Models
         }
     }
 
-
-
-    public class Coupon : TableBase
+    public interface ICoupon
     {
+        public int Id { get; set; }
         public Double Amount { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+    }
+
+    public class Coupon : ICoupon
+    {
+        public int Id { get; set; }
+        public Double Amount { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+
     }
 }

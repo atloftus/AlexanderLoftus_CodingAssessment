@@ -12,6 +12,8 @@ namespace AlexanderLoftus_CodingAssessment.Function_Handlers
     public interface IFunctionHandler { 
         
     }
+
+
     public class CalculateOrderTotalsFunctionHandler 
     {
         #region PROPERTIES
@@ -33,35 +35,31 @@ namespace AlexanderLoftus_CodingAssessment.Function_Handlers
         #region METHODS
         public string CalculateOrderTotals() 
         {
-            foreach (Order order in MockDataBaseService.orders) CalculateTotalsForOrder(order);
-            return CreateOutputFile();
+            List<IOrderTotal> OrderTotals = new List<IOrderTotal>();
+            foreach (Order order in MockDataBaseService.orders) OrderTotals.Add(CalculateTotalsForOrder(order));
+            return CSVOutputUtility.CreateOutputFile(Context, OrderTotals);
         }
 
 
-        public void CalculateTotalsForOrder(Order order) 
+        public IOrderTotal CalculateTotalsForOrder(Order order) 
         {
-            Console.WriteLine("====================" + order.Name + "====================");
-
+            IOrderTotal orderTotal = new OrderTotal();
+            orderTotal.Order = order;
             Promotion? activepromotion = MockDataBaseService.promotions.Where(x => (x.StartDate < DateTime.Now) && (x.EndDate > DateTime.Now)).OrderByDescending(x => x.Amount).FirstOrDefault();
             List<OrderProduct> thisordersproducts = MockDataBaseService.orderproducts.Where(x => x.Order == order).ToList();
 
-            foreach (OrderProduct orderproduct in thisordersproducts) order.PreTaxCost += orderproduct.Product.Price * orderproduct.Quantity;
+            foreach (OrderProduct orderproduct in thisordersproducts) orderTotal.PreTaxCost += orderproduct.Product.Price * orderproduct.Quantity;
 
             State orderstate = MockDataBaseService.states.Where(x => x.Id == order.StateId).FirstOrDefault();
 
-            Console.WriteLine("CalculateTaxBefore: " + orderstate.CalculateTaxBefore);
-            Console.WriteLine("PreTaxCost: " + order.PreTaxCost);
+            if (orderstate.CalculateTaxBefore) CalculateTotalsForPreTax(orderTotal, thisordersproducts, orderstate, activepromotion);
+            else CalculateTotalsForPostTax(orderTotal, thisordersproducts, orderstate, activepromotion);
 
-
-            if (orderstate.CalculateTaxBefore) CalculateTotalsForPreTax(order, thisordersproducts, orderstate, activepromotion);
-            else CalculateTotalsForPostTax(order, thisordersproducts, orderstate, activepromotion);
-
-            Console.WriteLine("Tax: " + order.Tax);
-            Console.WriteLine("Total: " + order.Total);
+            return orderTotal;
         }
 
 
-        public void CalculateTotalsForPreTax(Order order, List<OrderProduct> thisordersproducts, State orderstate, Promotion? activepromotion) 
+        public void CalculateTotalsForPreTax(IOrderTotal order, List<OrderProduct> thisordersproducts, State orderstate, Promotion? activepromotion) 
         {
             foreach (OrderProduct orderproduct in thisordersproducts)
             {
@@ -69,18 +67,13 @@ namespace AlexanderLoftus_CodingAssessment.Function_Handlers
                 Double finalPrice = orderproduct.Product.Price * orderproduct.Quantity;
                 Double tax = (orderproduct.Product.IsLuxuryGood ? (orderproduct.Product.Price * orderstate.TaxRate) * 2 : orderproduct.Product.Price * orderstate.TaxRate) * orderproduct.Quantity;
 
-                Console.WriteLine("----------" + orderproduct.Product.Name + " (" + orderproduct.Quantity + " @ $" + orderproduct.Product.Price + ")----------");
-                Console.WriteLine("finalPrice + tax - discount = TOTAL");
-                Console.WriteLine(finalPrice + " + " + tax + " - " + discount + " = " + (finalPrice + tax - discount));
-                Console.WriteLine("-----------------------------------");
-
                 order.Tax += tax;
                 order.Total += finalPrice + tax - discount;
             }
         }
 
 
-        public void CalculateTotalsForPostTax(Order order, List<OrderProduct> thisordersproducts, State orderstate, Promotion? activepromotion)
+        public void CalculateTotalsForPostTax(IOrderTotal order, List<OrderProduct> thisordersproducts, State orderstate, Promotion? activepromotion)
         {
             foreach (OrderProduct orderproduct in thisordersproducts)
             {               
@@ -109,18 +102,6 @@ namespace AlexanderLoftus_CodingAssessment.Function_Handlers
             discount *= orderproduct.Quantity;
 
             return discount;
-        }
-
-        public string CreateOutputFile() 
-        {
-            string OutputFilePath = Context.FunctionAppDirectory + @"\Output\RunAt_" + DateTime.Now.ToString("yyyy-MM-dd---hh-mm-ss") + ".csv";
-            using (FileStream fs = File.Create(OutputFilePath))
-            {
-                byte[] fileContents = CSVUtility.GetCSVMemoryStreamFromOrders(MockDataBaseService.orders).Result.ToArray();
-                fs.Write(fileContents, 0, fileContents.Length);
-            }
-
-            return OutputFilePath;
         }
         #endregion
     }
